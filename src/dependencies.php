@@ -82,9 +82,6 @@ $container[\pxls\Action\ReportList::class] = function ($c) {
 $container[\pxls\Action\Pixels::class] = function ($c) {
     return new \pxls\Action\Pixels($c->get('renderer'), $c->get('logger'), $c->get('database'));
 };
-$container[\pxls\Action\ChatContext::class] = function ($c) {
-    return new \pxls\Action\ChatContext($c->get('renderer'), $c->get('logger'), $c->get('database'),$c->get('discord'));
-};
 $container[\pxls\Action\NotifyController::class] = function ($c) {
     return new \pxls\Action\NotifyController($c->get('renderer'), $c->get('logger'), $c->get('database'),$c->get('discord'));
 };

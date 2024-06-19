@@ -18,11 +18,6 @@ class LogParser {
         $regex['shadowban'] = '/^(shadowban) (\S*)/i';
         $regex['unban'] = '/^(unban) (\S*)/i';
         $regex['ban'] = '/^(ban) (\S*)/i';
-        $regex['chatpermaban'] = '/\(chatban\) PERMA: {Target: (\S*)} {Initiator: (\S*)} {Length: (\S*)} {Purge: (true|false)} {PurgeAmount: (\d+)} {Reason: (.+)}/i';
-        $regex['chatunban'] = '/\(chatban\) UNBAN: {Target: (\S*)} {Initiator: (\S*)} {Length: (\S*)} {Purge: (true|false)} {PurgeAmount: (\d+)} {Reason: (.+)}/i';
-        $regex['chatban'] = '/\(chatban\) TEMP: {Target: (\S*)} {Initiator: (\S*)} {Length: (\S*)} {Purge: (true|false)} {PurgeAmount: (\d+)} {Reason: (.+)}/i';
-        $regex['chatpurge'] = '/<(\S*), (\d*)> purged (\d*) messages from <(\S*), (\d*)>/i';
-        $regex['chatdelete'] = '/<(\S*), (\d*)> purged message with id (\d*) from <(\S*), (\d*)>/i';
         $regex['setroles'] = '/Set (\S*)\'s roles? to (\S*)/i';
         $regex['addroles'] = '/Added roles "(.+)" to (\S*)/i';
         $regex['removeroles'] = '/Removed roles "(.+)" from (\S*)/i';
@@ -38,9 +33,6 @@ class LogParser {
         $regex['canvasunclaim'] = '/(unclaimed report) (\S*)/i';
         $regex['canvasclaim'] = '/(claimed report) (\S*)/i';
         $regex['canvasresolve'] = '/(resolved report) (\S*)/i';
-        $regex['chatunclaim'] = '/(unclaimed chat report) (\S*)/i';
-        $regex['chatclaim'] = '/(claimed chat report) (\S*)/i';
-        $regex['chatresolve'] = '/(resolved chat report) (\S*)/i';
         $regex['publicapi'] = '/(public api invoked by) (\S*)/i';
         $regex['ratelimit'] = '/(ratelimited) (\S*)/i';
 
@@ -77,33 +69,6 @@ class LogParser {
                 case 'ban':
                     return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[2][0]];
                     break;
-                case 'chatpermaban':
-                    $purgeCount = intval($matches[5][0]);
-                    if ($purgeCount >= 2147483647) {
-                        $purgeCount = "all";
-                    }
-                    return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[1][0], 'extra' => $matches[4][0] === 'true' ? " and got $purgeCount messages purged" : ''];
-                    break;
-                case 'chatunban':
-                    return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[1][0]];
-                    break;
-                case 'chatban':
-                    $purgeCount = intval($matches[5][0]);
-                    if ($purgeCount >= 2147483647) {
-                        $purgeCount = "all";
-                    }
-                    return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[1][0], 'extra' => $matches[4][0] === 'true' ? " and got $purgeCount messages purged" : ''];
-                    break;
-                case 'chatpurge':
-                    $amount = intval($matches[3][0]);
-                    if ($amount >= 2147483647) {
-                        $amount = 'All';
-                    }
-                    return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[4][0], 'target_id' => $matches[5][0], 'extra' => $amount];
-                    break;
-                case 'chatdelete':
-                    return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[4][0], 'target_id' => $matches[5][0], 'extra' => $matches[3][0]];
-                    break;
                 case 'setroles':
                 case 'setlogins':
                     return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[1][0], 'extra' => $matches[2][0]];
@@ -133,15 +98,12 @@ class LogParser {
                     return ['scope' => 'modaction', 'action' => $action, 'target' => $matches[1][0], 'extra' => $matches[2][0] == 'true' ? 'restricted' : 'unrestricted'];
                     break;
                 case 'canvasclaim':
-                case 'chatclaim':
                     return ['scope' => 'report', 'action' => $action, 'target' => $matches[2][0]];
                     break;
                 case 'canvasunclaim':
-                case 'chatunclaim':
                     return ['scope' => 'report', 'action' => $action, 'target' => $matches[2][0]];
                     break;
                 case 'canvasresolve':
-                case 'chatresolve':
                     return ['scope' => 'report', 'action' => $action, 'target' => $matches[2][0]];
                     break;
                 case 'publicapi':
@@ -169,11 +131,6 @@ class LogParser {
         $messageTpl["modaction"]["shadowban"]       = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> was shadowbanned.';
         $messageTpl["modaction"]["ban"]             = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> was canvas time-banned.';
         $messageTpl["modaction"]["unban"]           = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> was canvas unbanned.';
-        $messageTpl["modaction"]["chatpermaban"]    = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> was chat banned permanently%extra%.';
-        $messageTpl["modaction"]["chatban"]         = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> was chat time-banned%extra%.';
-        $messageTpl["modaction"]["chatunban"]       = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> was chat unbanned.';
-        $messageTpl["modaction"]["chatpurge"]       = '%extra% messages from <a href="'.$router->pathFor('profileId', ['id' => '%target_id%']).'" target="_blank">%target% (UID %target_id%)</a> were purged from chat.';
-        $messageTpl["modaction"]["chatdelete"]      = 'Message <a href="'.$router->pathFor('ChatContext').'?cmid=%extra%" target="_blank">ID %extra%</a> from <a href="'.$router->pathFor('profileId', ['id' => '%target_id%']).'" target="_blank">%target% (UID %target_id%)</a> was deleted from chat.';
         $messageTpl["modaction"]["setlogins"]        = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a>\'s login method(s) were set to %extra%.';
         $messageTpl["modaction"]["addlogins"]        = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> can now login with %extra%.';
         $messageTpl["modaction"]["removelogins"]     = '<a href="'.$router->pathFor('profileUsername', ['username' => '%target%']).'" target="_blank">%target%</a> can no longer login with the service(s) %extra%.';
@@ -190,9 +147,6 @@ class LogParser {
         $messageTpl["report"]["canvasclaim"]   = 'Canvas Report <a href="#" data-toggle="modal" data-reportid="%target%" data-target="#report_info">ID %target%</a> has been claimed';
         $messageTpl["report"]["canvasunclaim"] = 'Canvas Report <a href="#" data-toggle="modal" data-reportid="%target%" data-target="#report_info">ID %target%</a> has been unclaimed';
         $messageTpl["report"]["canvasresolve"] = 'Canvas Report <a href="#" data-toggle="modal" data-reportid="%target%" data-target="#report_info">ID %target%</a> has been resolved';
-        $messageTpl["report"]["chatclaim"]     = 'Chat Report <a href="#" data-toggle="modal" data-reportid="%target%" data-target="#chat_report_modal">ID %target%</a> has been claimed';
-        $messageTpl["report"]["chatunclaim"]   = 'Chat Report <a href="#" data-toggle="modal" data-reportid="%target%" data-target="#chat_report_modal">ID %target%</a> has been unclaimed';
-        $messageTpl["report"]["chatresolve"]   = 'Chat Report <a href="#" data-toggle="modal" data-reportid="%target%" data-target="#chat_report_modal">ID %target%</a> has been resolved';
         // Scope: API
         $messageTpl["api"]["publicapi"]     = '[ACCESS] <a target="_ipinfo" href="http://netip.de/search?query=%target%">%target%</a> accessed the public api (<a target="_ipinfo" href="https://apps.db.ripe.net/search/query.html?searchtext=%target%">RIPE</a>)';
         $messageTpl["api"]["ratelimit"]     = '[RATELIMIT] <a target="_ipinfo" href="http://netip.de/search?query=%target%">%target%</a> exceeded 15 requests per 15 minutes.  (<a target="_ipinfo" href="https://apps.db.ripe.net/search/query.html?searchtext=%target%">RIPE</a>)';

@@ -21,7 +21,6 @@ $error = function(\Slim\Http\Request $request, \Slim\Http\Response $response, To
     $output = [];
     $output['error'] = [
         'msg' => $tokenAuth->getResponseMessage(),
-        'token' => $tokenAuth->getResponseToken(),
         'status' => 401,
         'error' => true
     ];

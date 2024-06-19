@@ -14,29 +14,27 @@ class ReportHandler {
         $this->settings = $app->getContainer()->get("settings");
     }
 
-    public function announce($openChatReports = 0) {
+    public function announce() {
         $reports = $this->getReports(1);
         $claimedCount = 0;
         foreach($reports as $report) {
             if(!$report['claimed_by'] == 0) $claimedCount++;
         }
         $reportCount = count($reports) - $claimedCount;
-        if($reportCount > 0 || $openChatReports > 0) {
+        if($reportCount > 0) {
             $normalParts = [
                 'owo h-hewwo moderwators... pwease answewr',
                 ' '.($reportCount == 0 ? '' : ($reportCount == 1 ? 'this ' : 'these ').$reportCount. " canvas weport".($reportCount == 1 ? '' : 's')),
-                ($openChatReports == 0 ? '' : (($reportCount > 0 ? ' and ' : ($openChatReports == 1 ? 'this ' : 'these ')).$openChatReports.' chat weport'.($openChatReports == 1 ? '' : 's'))),
                 ' pwease >.< <'.$this->settings['webroots']['panel'].'/>'
             ];
             $panicParts = [
                 '┻━┻彡 ヽ(ಠДಠ)ノ彡┻━┻﻿ wake up'.(strlen($this->settings['roles']['moderator']) > 0 ? " <@&".$this->settings['roles']['moderator'].">" : '').', there',
                 ' '.($reportCount == 0 ? '' : ($reportCount == 1 ? 'is ' : 'are ').$reportCount.' canvas report'.($reportCount == 1 ? '' : 's')),
-                ''.($openChatReports == 0 ? ' ' : ($reportCount == 0 ? ($openChatReports == 1 ? 'is ' : 'are ') : ' and ').$openChatReports.' chat report'.($openChatReports == 1 ? '' : 's').' '),
                 'to handle. <'.$this->settings['webroots']['panel'].'/>'
             ];
 
             $this->discord->setName("Pxls Admin");
-            $this->discord->setMessage(implode(($reportCount >= 30 || $openChatReports >= 30) ? $panicParts : $normalParts));
+            $this->discord->setMessage(implode(($reportCount >= 30) ? $panicParts : $normalParts));
             $this->discord->execute();
             return true;
         } else {

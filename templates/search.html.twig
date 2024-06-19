@@ -25,7 +25,6 @@
                                 <th>Cooldown Expiry</th>
                                 <th>Roles</th>
                                 <th>Canvas Ban</th>
-                                <th>Chat Ban</th>
                                 <th>Signup IP</th>
                                 <th>Last IP</th>
                                 <th>Pixel Counts</th>
@@ -64,19 +63,6 @@
                                             {% endif %}
                                             <br/>
                                             Reason: <span>{{ user.ban_reason }}</span>
-                                        {% else %}
-                                            Not Banned
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if user.chat_banned %}
-                                            {% if user.perma_chat_banned %}
-                                                Permanent
-                                            {% else %}
-                                                Expires <span>{{ user.chat_ban_expiry|date("M, d Y H:i:s") }}</span>
-                                            {% endif %}
-                                            <br/>
-                                            Reason: <span>{{ user.chat_ban_reason }}</span>
                                         {% else %}
                                             Not Banned
                                         {% endif %}

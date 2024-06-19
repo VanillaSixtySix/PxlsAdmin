@@ -15,7 +15,7 @@ final class Search
     private $logger;
     private $database;
     protected $result = [];
-    private static $qs = "u.id, u.username, u.signup_time, u.cooldown_expiry, u.signup_ip, u.last_ip, u.pixel_count, u.pixel_count_alltime, u.is_shadow_banned, u.ban_expiry, u.ban_reason, u.perma_chat_banned, u.chat_ban_expiry, u.chat_ban_reason, u.ban_expiry = to_timestamp(0) AS \"is_ban_permanent\", (SELECT u.is_shadow_banned OR u.ban_expiry = to_timestamp(0) OR (now() < u.ban_expiry)) AS \"banned\", (u.perma_chat_banned OR now() < u.chat_ban_expiry) AS \"chat_banned\"";
+    private static $qs = "u.id, u.username, u.signup_time, u.cooldown_expiry, u.signup_ip, u.last_ip, u.pixel_count, u.pixel_count_alltime, u.is_shadow_banned, u.ban_expiry, u.ban_reason, u.ban_expiry = to_timestamp(0) AS \"is_ban_permanent\", (SELECT u.is_shadow_banned OR u.ban_expiry = to_timestamp(0) OR (now() < u.ban_expiry)) AS \"banned\"";
 
     public function __construct(Twig $view, LoggerInterface $logger, \PDO $database)
     {
