@@ -58,7 +58,7 @@ $('#report_info').on('show.bs.modal', function (event) {
             }
         }
 
-        let cannotOverwrite = !['administrator', 'developer'].some(r => data.self.roles.includes(r)) && !data.general.claimed_by_you;
+        let cannotOverwrite = !['moderator', 'administrator', 'developer'].some(r => data.self.roles.includes(r)) && !data.general.claimed_by_you;
         modal.find('#rmd-claim').data('reportid',data.general.id);
         modal.find('#rmd-unclaim').data('reportid',data.general.id)[0].disabled=cannotOverwrite;
         modal.find('#rmd-resolve').data('reportid',data.general.id)[0].disabled=cannotOverwrite;
